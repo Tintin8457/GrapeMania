@@ -58,3 +58,12 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+# Ignored Files
+GrapeMania/Library/
+GrapeMania/.vs/
+GrapeMania/Logs/
+GrapeMania/Zork.Unity.sln/
+GrapeMania/ZorkUnity.sln/
+GrapeMania/UserSettings/
+GrapeMania/.vsconfig/
+GrapeMania/.Assembly-CSharp.csproj/
