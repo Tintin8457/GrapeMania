@@ -5,17 +5,16 @@ using UnityEngine;
 public class TreeEvents : MonoBehaviour
 {
     [Header("Events")]
-    public GameObject popUp;
     public BoxCollider2D trigger;
-    public bool canReset = false;
+    public bool activateShaking = false;
 
     [Header("Tree Components")]
-    public int minimumShakeAmount;
-    public int scoreAmount;
+    public int scoreAmount = 1;
     public GameObject grapeShooter;
 
     [Header("Components")]
     public GameObject leaf;
+    public Animator leafMovement;
     public GameObject bark;
 
     [Header("Component Colors 1")]
@@ -41,9 +40,9 @@ public class TreeEvents : MonoBehaviour
     public bool thirdWave = false;
 
     [Header("Last Waves")]
-    public bool wave1Done;
-    public bool wave2Done;
-    public bool wave3Done;
+    public bool wave1Done = false;
+    public bool wave2Done = false;
+    public bool wave3Done = false;
 
     [Header("Grape Waves")]
     public GameObject[] wave1;
@@ -51,6 +50,7 @@ public class TreeEvents : MonoBehaviour
     public GameObject[] wave3;
 
     private Player player;
+    GameObject newGrape;
 
     // Start is called before the first frame update
     void Start()
@@ -67,44 +67,51 @@ public class TreeEvents : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Reset level
-        if (canReset == true)
+        //Wave done check
+        if (wave1Done == true)
+        {
+            firstWave = false;
+            secondWave = true;
+        }
+
+        if (wave2Done == true)
+        {
+            secondWave = false;
+            thirdWave = true;
+        }
+
+        if (wave3Done == true)
+        {
+            thirdWave = false;
+            player.finishedGame = true;
+        }
+
+        //Allow player to shake tree again
+        if (activateShaking == true)
         {
             trigger.enabled = true;
-            player.Reset();
+            player.promptTrigger[0].enabled = true;
+            player.promptTrigger[1].enabled = true;
+            activateShaking = false;
         }
     }
 
-    //Popup and disable message to press P to shake tree
-    public void PopUp()
-    {
-        popUp.SetActive(true);
-    }
-
-    public void RemovePopUp()
-    {
-        popUp.SetActive(false);
-    }
-
+    //Change the tree to different colors for each wave
     public void ChangeTree()
     {
-        //Stop player from interacting with the tree
-        trigger.enabled = false;
-
-        //Change the tree to different colors for each wave
-        if (firstWave)
+        if (firstWave == true)
         {
             leaf.GetComponent<SpriteRenderer>().color = leafColor;
             bark.GetComponent<SpriteRenderer>().color = barkColor;
         }
 
-        else if (secondWave)
+        else if (secondWave == true)
         {
             leaf.GetComponent<SpriteRenderer>().color = leafColor2;
             bark.GetComponent<SpriteRenderer>().color = barkColor2;
         }
 
-        else if (thirdWave)
+        else if (thirdWave == true)
         {
             leaf.GetComponent<SpriteRenderer>().color = leafColor3;
             bark.GetComponent<SpriteRenderer>().color = barkColor3;
@@ -115,29 +122,42 @@ public class TreeEvents : MonoBehaviour
     //Wave 1
     public IEnumerator FirstSpawnGrapes()
     {
-        grapeShooter.GetComponent<Animator>().enabled = true;
-        
-
-        for (int g1 = 0; g1 < wave1.Length; g1++)
+        if (player.score <= 11)
         {
-            if (wave1[g1] != null)
+            grapeShooter.GetComponent<Animator>().enabled = true;
+
+            for (int g1 = 0; g1 < wave1.Length; g1++)
             {
-                GameObject newGrape = Instantiate(wave1[g1], new Vector2(grapeShooter.transform.position.x, grapeShooter.transform.position.y), Quaternion.identity);
-                yield return new WaitForSeconds(grapeDropWave1);
-                wave1[g1] = newGrape;
+                if (firstWave == true && g1 < wave1.Length && wave1[g1] != null)
+                {
+                    if (newGrape == null)
+                    {
+                        newGrape = Instantiate(wave1[g1], new Vector2(grapeShooter.transform.position.x, grapeShooter.transform.position.y), Quaternion.identity);
+                        yield return new WaitForSeconds(grapeDropWave1);
+                        wave1[g1] = newGrape;
+                    }
+                }
             }
+        }
+
+        else if (player.score >= 11)
+        {
+            grapeShooter.GetComponent<Animator>().enabled = false;
+            wave1Done = true;
+            activateShaking = true;
+            player.stopShaking = false;
         }
 
         //Disable shooter when wave is done
         for (int i = 0; i < wave1.Length; i++)
         {
-            if (wave1[i] == null)
+            if (wave1[10] == null)
             {
                 yield return new WaitForSeconds(0.4f);
                 grapeShooter.GetComponent<Animator>().enabled = false;
-                firstWave = false;
                 wave1Done = true;
-                canReset = true;
+                activateShaking = true;
+                player.stopShaking = false;
             }
         }
     }
@@ -145,28 +165,35 @@ public class TreeEvents : MonoBehaviour
     //Wave 2
     public IEnumerator SecondSpawnGrapes()
     {
-        grapeShooter.GetComponent<Animator>().enabled = true;
-
-        for (int g2 = 0; g2 < wave2.Length; g2++)
+        if (player.score <= 22)
         {
-            if (wave2[g2] != null)
+            grapeShooter.GetComponent<Animator>().enabled = true;
+
+            for (int g2 = 0; g2 < wave2.Length; g2++)
             {
-                GameObject newGrape = Instantiate(wave2[g2], new Vector2(grapeShooter.transform.position.x, grapeShooter.transform.position.y), Quaternion.identity);
-                yield return new WaitForSeconds(grapeDropWave2);
-                wave2[g2] = newGrape;
+                if (secondWave == true && g2 < wave2.Length && wave2[g2] != null)
+                {
+                    if (newGrape == null)
+                    {
+                        newGrape = Instantiate(wave2[g2], new Vector2(grapeShooter.transform.position.x, grapeShooter.transform.position.y), Quaternion.identity);
+                        yield return new WaitForSeconds(grapeDropWave2);
+                        wave2[g2] = newGrape;
+                    }
+                }
             }
         }
 
         //Disable shooter when wave is done
         for (int i = 0; i < wave2.Length; i++)
         {
-            if (wave2[i] == null)
+            if (wave2[10] == null)
             {
                 yield return new WaitForSeconds(0.4f);
                 grapeShooter.GetComponent<Animator>().enabled = false;
-                secondWave = false;
                 wave2Done = true;
-                canReset = true;
+                activateShaking = true;
+                player.stopShaking = false;
+                player.canSpawn = false;
             }
         }
     }
@@ -174,27 +201,34 @@ public class TreeEvents : MonoBehaviour
     //Wave 3
     public IEnumerator ThirdSpawnGrapes()
     {
-        grapeShooter.GetComponent<Animator>().enabled = true;
-
-        for (int g3 = 0; g3 < wave3.Length; g3++)
+        if (player.score <= 33)
         {
-            if (wave3[g3] != null)
+            grapeShooter.GetComponent<Animator>().enabled = true;
+
+            for (int g3 = 0; g3 < wave3.Length; g3++)
             {
-                GameObject newGrape = Instantiate(wave3[g3], new Vector2(grapeShooter.transform.position.x, grapeShooter.transform.position.y), Quaternion.identity);
-                yield return new WaitForSeconds(grapeDropWave3);
-                wave3[g3] = newGrape;
+                if (thirdWave == true && g3 < wave3.Length && wave3[g3] != null)
+                {
+                    if (newGrape == null)
+                    {
+                        newGrape = Instantiate(wave3[g3], new Vector2(grapeShooter.transform.position.x, grapeShooter.transform.position.y), Quaternion.identity);
+                        yield return new WaitForSeconds(grapeDropWave3);
+                        wave3[g3] = newGrape;
+                    }
+                }
             }
         }
 
         //Disable shooter when wave is done
         for (int i = 0; i < wave3.Length; i++)
         {
-            if (wave3[i] == null)
+            if (wave3[10] == null)
             {
                 grapeShooter.GetComponent<Animator>().enabled = false;
-                thirdWave = false;
                 yield return new WaitForSeconds(1f);
                 wave3Done = true;
+                activateShaking = true;
+                player.stopShaking = false;
             }
         }
     }

@@ -4,11 +4,13 @@ using UnityEngine;
 
 public class EnhancedWave : MonoBehaviour
 {
-    public GameObject obstacle;
+    public GameObject [] obstacle;
     public GameObject enemy;
 
     private Player player;
     private TreeEvents tree;
+
+    public bool spawnNext = false;
 
     // Start is called before the first frame update
     void Start()
@@ -28,24 +30,27 @@ public class EnhancedWave : MonoBehaviour
         {
             tree = gTree.GetComponent<TreeEvents>();
         }
+
+        obstacle[0].transform.position = new Vector3(-3.76f, gameObject.transform.position.y - 0.353f, -0.51924f);
+        obstacle[1].transform.position = new Vector3(2.54f, gameObject.transform.position.y - 0.353f, -0.51924f);
+
+        enemy.transform.position = new Vector3(gameObject.transform.position.x - 5, gameObject.transform.position.y, gameObject.transform.position.z);
     }
     
     // Update is called once per frame
     void Update()
     {
         //Spawn roaming obstacle at wave 2
-        if (tree.wave2Done == false && player.wave == 2 && player.canSpawn == true)
+        if (tree.secondWave == true && player.canSpawn == true)
         {
-            Instantiate(obstacle, new Vector2(gameObject.transform.position.x - 0.7f, gameObject.transform.position.y - 0.353f), Quaternion.identity);
-            Instantiate(obstacle, new Vector2(gameObject.transform.position.x - 7, gameObject.transform.position.y - 0.353f), Quaternion.identity);
-            player.canSpawn = false;
+            obstacle[0].SetActive(true);
+            obstacle[1].SetActive(true);
         }
 
         //Spawn enemy at wave 3
-        if (tree.wave3Done == false && player.wave == 3 && player.canSpawn == true)
+        if (player.stopShaking == true && tree.thirdWave == true && player.canSpawn == true && tree.wave3Done == false)
         {
-            Instantiate(enemy, new Vector2(gameObject.transform.position.x - 5, gameObject.transform.position.y), Quaternion.identity);
-            player.canSpawn = false;
+            enemy.SetActive(true);
         }
     }
 }

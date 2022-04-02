@@ -8,15 +8,22 @@ public class Player : MonoBehaviour
     [Header("Player")]
     public float speed = 5.0f;
     private Rigidbody2D playerRigidBody;
-    public int jumpForce = 4;
-    public bool canPressP = false;
+    public int jumpForce = 7;
+    public bool canJump = true;
     public Animator playerAnim;
-    public SpriteRenderer sprite;
+    public SpriteRenderer playersprite;
+
+    [Header("Shaking")]
+    public GameObject popUp;
+    public BoxCollider2D[] promptTrigger;
+    public float minimumShakeAmount = 3;
+    public bool stopShaking = false;
+    public bool canShakeTree = false;
 
     [Header("Waves")]
     public TextMeshProUGUI wavesText;
     public int wave;
-    public bool canSpawn;
+    public bool canSpawn = false;
 
     [Header("Score")]
     public TextMeshProUGUI scoreText;
@@ -30,7 +37,8 @@ public class Player : MonoBehaviour
     public TextMeshProUGUI outcomeText;
     public GameObject outcome;
     public GameObject grapes;
-    public bool gameOver;
+    public bool gameOver = false;
+    public bool finishedGame = false;
 
     private TreeEvents tree;
 
@@ -46,6 +54,8 @@ public class Player : MonoBehaviour
         {
             tree = gTree.GetComponent<TreeEvents>();
         }
+
+        tree.leafMovement.SetBool("stop", true);
     }
 
     // Update is called once per frame
@@ -55,22 +65,32 @@ public class Player : MonoBehaviour
         healthText.text = "Health: " + health.ToString() + "/" + "3";
         wavesText.text = "Wave: " + wave.ToString() + "/" + "3";
 
-        //Allow player to shake tree
-        ShakeTree();
+        //Shake tree will occur
+        if (canShakeTree == true)
+        {
+            ShakeTree(minimumShakeAmount);
+        }
+
+        //The tree will drop grapes
+        if (stopShaking == true)
+        {
+            tree.leafMovement.SetBool("stop", true);
+            TreeRumbled();
+        }
 
         //Player lose condition
-        if (tree.wave3Done && score < 33 || health == 0)
+        if (score < 33 && finishedGame == true || health == 0)
         {
             ChangeMoveType(1);
             speed = 0;
             outcomeText.text = "Got all 33 grapes? because I only see fewer than 33! You'll get your money when get me all 33 grapes!";
             gameOver = true;
             outcome.SetActive(true);
-            sprite.color = new Color32(239, 98, 98, 255);
+            playersprite.color = new Color32(239, 98, 98, 255);
         }
 
         //Player win condition
-        else if (tree.wave3Done && score == 33)
+        else if (finishedGame = true && score == 33 || score == 33)
         {
             ChangeMoveType(1);
             speed = 0;
@@ -80,31 +100,37 @@ public class Player : MonoBehaviour
             grapes.SetActive(true);
         }
 
-        //Player Animations
         if (gameOver == false)
         {
+            //Player Animations
             if (Input.GetKeyUp(KeyCode.A))
             {
-                ChangeDirection(1);
                 ChangeMoveType(1);
             }
 
             else if (Input.GetKeyDown(KeyCode.A))
             {
                 ChangeMoveType(2);
-                ChangeDirection(1);
             }
 
             if (Input.GetKeyUp(KeyCode.D))
             {
-                ChangeDirection(2);
                 ChangeMoveType(1);
             }
 
             else if (Input.GetKeyDown(KeyCode.D))
             {
-                ChangeMoveType(2);
                 ChangeDirection(2);
+            }
+            
+            if (canJump == true || playerRigidBody.velocity.y == 0)
+            {
+                if (Input.GetKeyDown(KeyCode.Space))
+                {
+                    canJump = false;
+                    playerRigidBody.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
+                    ChangeMoveType(3);
+                }
             }
         }
     }
@@ -115,136 +141,133 @@ public class Player : MonoBehaviour
         if (Input.GetKey(KeyCode.A))
         {
             transform.position += -transform.right * Time.deltaTime * speed;
+            ChangeDirection(1);
         }
 
         if (Input.GetKey(KeyCode.D))
         {
             transform.position += transform.right * Time.deltaTime * speed;
+            ChangeMoveType(2);
         }
     }
 
     //Only allow the player to jump once with the spacebar
     private void OnCollisionStay2D(Collision2D ground)
     {
-        if (ground.collider.CompareTag("Ground"))
+        if (ground.collider.CompareTag("Ground") || ground.collider.CompareTag("Obstacle"))
         {
-            if (gameOver == false)
-            {
-                if (Input.GetKey(KeyCode.Space))
-                {
-                    playerRigidBody.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
-                    ChangeMoveType(3);
-                }
-            }
+            canJump = true;
         }
     }
 
     private void OnTriggerEnter2D(Collider2D action)
     {
-        //Prompt popup message and allow player to shake tree
+        //Allow player to shake tree
         if (action.CompareTag("Tree"))
         {
-            tree.PopUp();
-            canPressP = true;
+            canShakeTree = true;
+            popUp.SetActive(false);
+        }
+
+        //Prompt popup message
+        if (action.CompareTag("Prompt"))
+        {
+            popUp.SetActive(true);
         }
     }
 
     private void OnTriggerExit2D(Collider2D exit)
     {
-        //Remove shake tree popup message and disable ability to shake tree
+        //Stop shaking tree
         if (exit.CompareTag("Tree"))
         {
-            tree.RemovePopUp();
-            canPressP = false;
+            popUp.SetActive(false);
+            tree.leafMovement.SetBool("stop", true);
+            canShakeTree = false;
         }
-    }
 
-    //Enable player to shake tree
-    public void ShakeTree()
-    {
-        //Shake tree for a certain amount of times until player can get grapes
-        if (canPressP == true)
+        //Remove popup message
+        if (exit.CompareTag("Prompt"))
         {
-            if (Input.GetKeyDown(KeyCode.P))
-            {
-                tree.minimumShakeAmount -= 1;
-                tree.leaf.GetComponent<Animator>().enabled = true;
-
-                //Change shaking speeds
-                if (tree.firstWave)
-                {
-                    tree.leaf.GetComponent<Animator>().speed = 1;
-                }
-
-                else if (tree.secondWave)
-                {
-                    tree.leaf.GetComponent<Animator>().speed = 3;
-                    canSpawn = true;
-                }
-
-                else if (tree.thirdWave)
-                {
-                    tree.leaf.GetComponent<Animator>().speed = 3.5f;
-                    canSpawn = true;
-                }
-            }
-
-            TreeRumbled();
+            popUp.SetActive(false);
         }
     }
 
+    //Allow player to shake tree
+    public void ShakeTree(float shake)
+    {
+        shake = minimumShakeAmount;
+
+        //Change shaking speeds
+        if (tree.firstWave == true)
+        {
+            tree.leafMovement.speed = 1;
+        }
+
+        else if (tree.secondWave == true)
+        {
+            tree.leafMovement.speed = 3;
+        }
+
+        else if (tree.thirdWave == true)
+        {
+            tree.leafMovement.speed = 3.5f;
+        }
+
+        //Shake tree
+        if (shake > 1)
+        {
+            tree.leafMovement.SetBool("stop", false);
+            minimumShakeAmount -= Time.deltaTime;
+        }
+
+        //Stop shaking tree
+        else if (shake <= 1)
+        {
+            canShakeTree = false;
+
+            if (canShakeTree == false)
+            {
+                tree.trigger.enabled = false;
+                promptTrigger[0].enabled = false;
+                promptTrigger[1].enabled = false;
+                stopShaking = true;
+            }
+        }
+    }
+
+    //Tree will drop grapes
     public void TreeRumbled()
     {
-        if (tree.minimumShakeAmount == 0 && tree.enabled == true)
+        //Change tree to new colors
+        tree.ChangeTree();
+
+        //Spawn a wave of grapes after shaking tree
+        if (tree.firstWave == true)
         {
-            tree.leaf.GetComponent<Animator>().enabled = false;
-
-            //Change tree to new colors
-            tree.ChangeTree();
-
-            //Spawn a wave of grapes after shaking tree
-            if (tree.firstWave)
-            {
-                wave = 1;
-                tree.StartCoroutine("FirstSpawnGrapes");
-            }
-
-            else if (tree.secondWave)
-            {
-                wave = 2;
-                tree.StartCoroutine("SecondSpawnGrapes");
-            }
-
-            else if (tree.thirdWave)
-            {
-                wave = 3;
-                tree.StartCoroutine("ThirdSpawnGrapes");
-            }
-        }
-    }
-
-    //Reset level
-    public void Reset()
-    {
-        //Enable new wave
-        if (tree.wave1Done && !tree.wave2Done)
-        {
-            tree.secondWave = true;
-            tree.minimumShakeAmount = 6;
+            wave = 1;
+            minimumShakeAmount = 6.0f;
+            tree.StartCoroutine("FirstSpawnGrapes");
         }
 
-        else if (tree.wave2Done && !tree.wave3Done)
+        else if (tree.secondWave == true)
         {
-            tree.thirdWave = true;
-            tree.minimumShakeAmount = 8;
+            wave = 2;
+            minimumShakeAmount = 8.0f;
+            canSpawn = true;
+            tree.StartCoroutine("SecondSpawnGrapes");
         }
 
-        ShakeTree();
-        tree.canReset = false;
+        else if (tree.thirdWave == true)
+        {
+            wave = 3;
+            canSpawn = true;
+            tree.StartCoroutine("ThirdSpawnGrapes");
+        }
     }
 
     //Different animation states of player
-    enum moveType
+    enum MoveType
     {
         Idle = 1,
         Walking,
@@ -258,11 +281,13 @@ public class Player : MonoBehaviour
         FrontRight
     }
 
+    //Change state of player
     public void ChangeMoveType(int moveType)
     {
         playerAnim.SetInteger("moveType", moveType);
     }
 
+    //Change sprite orientation when facing left/right
     public void ChangeDirection(int direction)
     {
         playerAnim.SetInteger("direction", direction);

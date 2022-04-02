@@ -114,7 +114,7 @@ GameObject:
   - component: {fileID: 4682998324040043881}
   - component: {fileID: 4682998324040043886}
   - component: {fileID: 4682998324040043885}
-  - component: {fileID: 906588947}
+  - component: {fileID: 1280119479}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -171,10 +171,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 5
-  jumpForce: 4
-  canPressP: 0
+  jumpForce: 7
+  canJump: 1
   playerAnim: {fileID: 1636732310}
-  sprite: {fileID: 5357520418638288663}
+  playersprite: {fileID: 5357520418638288663}
+  popUp: {fileID: 0}
+  promptTrigger:
+  - {fileID: 0}
+  - {fileID: 0}
+  minimumShakeAmount: 3
+  stopShaking: 0
+  canShakeTree: 0
   wavesText: {fileID: 0}
   wave: 0
   canSpawn: 0
@@ -186,8 +193,9 @@ MonoBehaviour:
   outcome: {fileID: 0}
   grapes: {fileID: 0}
   gameOver: 0
---- !u!61 &906588947
-BoxCollider2D:
+  finishedGame: 0
+--- !u!70 &1280119479
+CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -199,16 +207,6 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.06, y: -0.14}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1.3888888, y: 2.3611112}
-    newSize: {x: 1, y: 2}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 0.8, y: 1.81}
-  m_EdgeRadius: 0
+  m_Offset: {x: -0.03, y: -0.11}
+  m_Size: {x: 0.83, y: 1.85}
+  m_Direction: 0

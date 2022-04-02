@@ -48,7 +48,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -1.97, y: -1.5}
+  m_Offset: {x: -1.9498457, y: -2.8702698}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -59,7 +59,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 4.08, y: 4.32}
+  m_Size: {x: 0.8633039, y: 1.6217852}
   m_EdgeRadius: 0
 --- !u!114 &761677256
 MonoBehaviour:
@@ -73,13 +73,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba513749c5f63934a81eefe2f1042e59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  popUp: {fileID: 0}
   trigger: {fileID: 761677257}
   canReset: 0
-  minimumShakeAmount: 3
   scoreAmount: 1
   grapeShooter: {fileID: 1859370692823382926}
   leaf: {fileID: 89397972361420761}
+  leafMovement: {fileID: 1319610729}
   bark: {fileID: 89397971427742116}
   leafColor:
     serializedVersion: 2
@@ -89,22 +88,23 @@ MonoBehaviour:
     rgba: 4280960883
   leafColor2:
     serializedVersion: 2
-    rgba: 4287090554
+    rgba: 4286825336
   barkColor2:
     serializedVersion: 2
-    rgba: 4280630368
+    rgba: 4280499815
   leafColor3:
     serializedVersion: 2
-    rgba: 4287873163
+    rgba: 4288067984
   barkColor3:
     serializedVersion: 2
-    rgba: 4280168525
+    rgba: 4279971661
   grapeDropWave1: 1.7
   grapeDropWave2: 1.63
   grapeDropWave3: 1.54
   firstWave: 1
   secondWave: 0
   thirdWave: 0
+  canDrop: 0
   wave1Done: 0
   wave2Done: 0
   wave3Done: 0
@@ -156,7 +156,7 @@ GameObject:
   - component: {fileID: 89397971427742122}
   m_Layer: 0
   m_Name: Bark
-  m_TagString: Tree
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -237,10 +237,10 @@ GameObject:
   m_Component:
   - component: {fileID: 89397972361420760}
   - component: {fileID: 89397972361420767}
-  - component: {fileID: 2083971625}
+  - component: {fileID: 1319610729}
   m_Layer: 0
   m_Name: Leaf
-  m_TagString: Tree
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -311,7 +311,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!95 &2083971625
+--- !u!95 &1319610729
 Animator:
   serializedVersion: 3
   m_ObjectHideFlags: 0
@@ -319,9 +319,9 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 89397972361420761}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: a59bc1cf03691644e934d4f33c0784ec, type: 2}
+  m_Controller: {fileID: 9100000, guid: 6257feae383c4354284f00ea2f8e96a4, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0

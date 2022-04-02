@@ -12,6 +12,7 @@ TagManager:
   - Barrier1
   - Barrier2
   - Obstacle
+  - Prompt
   layers:
   - Default
   - TransparentFX

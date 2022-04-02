@@ -5,15 +5,25 @@ using UnityEngine;
 public class Grape : MonoBehaviour
 {
     private TreeEvents tree;
+    private Player player;
 
     // Start is called before the first frame update
     void Start()
     {
+        //Find player
         GameObject getTree = GameObject.FindGameObjectWithTag("Tree");
 
         if (getTree != null)
         {
             tree = getTree.GetComponent<TreeEvents>();
+        }
+
+        //Find player
+        GameObject findPlayer = GameObject.FindGameObjectWithTag("Player");
+
+        if (findPlayer != null)
+        {
+            player = findPlayer.GetComponent<Player>();
         }
     }
 
@@ -26,9 +36,23 @@ public class Grape : MonoBehaviour
         }
 
         //Give player max score of 3 for grapes
-        if (collision.CompareTag("Player"))
+        else if (collision.CompareTag("Player"))
         {
-            collision.gameObject.GetComponent<Player>().score += tree.scoreAmount;
+            if (tree.firstWave == true && player.score == 11)
+            {
+                collision.gameObject.GetComponent<Player>().score += 0;
+            }
+
+            else if (tree.firstWave == true && player.score == 22)
+            {
+                collision.gameObject.GetComponent<Player>().score += 0;
+            }
+
+            else
+            {
+                collision.gameObject.GetComponent<Player>().score += tree.scoreAmount;
+            }
+
             Destroy(gameObject);
         }
     }
